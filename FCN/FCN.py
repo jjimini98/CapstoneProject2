@@ -143,4 +143,92 @@ def inference(image, keep_prob):
     return tf.expand_dims(annotation_pred, dim=3), conv_t3
 
 
-# 263p~~~~~~~~~~~~~~~~
+def main(argv=None):
+    #인풋 이미지와 타겟 이미지, 드롭아웃 확률을 받을 플레이스홀더 정의
+    keep_probability = tf.placeholder(tf.float32, name="keep_probability")
+    image = tf.placeholder(tf.float32, shape=[None, IMAGE_SIZE, IMAGE_SIZE, 3], name="input_image")
+    annotation = tf.placeholder(tf.int32, shape=[None, IMAGE_SIZE, IMAGE_SIZE, 1], name="annotation")
+
+    # FCN그래프를 선언하고 TensorBoard를 위한 summary들을 지정
+    pred_annotation, logits = inference(image, keep_probability)
+    tf.summary.image("input_image", image, max_outputs=2)
+    tf.summary.image("ground_truth", tf.cast(annotation, tf.uint8), max_outputs=2)
+    tf.summary.image("pred_annotation", tf.cast(pred_annotation, tf.uint8), max_outputs=2)
+
+    # 손실 함수를 선언하고 손실 함수에 대한 summary 지정
+    loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=tf.squeeze(annotation, squeeze_dims=[3]), name="entropy")))
+    tf.summary.scalar("entropy", loss)
+
+    # 옵티마이저를 선언하고 파라미터를 한스텝 업데이트하는 train_step연산 정의
+    optimizer = tf.train.AdamOptimizer(FLAGS.learning_rate)
+    train_step = optimizer.minimize(loss)
+
+    # TensorBoard를 위한 summary들을 하나로 merge
+    print("Setting up image reader...")
+    train_records, valid_records = scene_parsing.read_dataset(FLAGS.data_dir)
+    print(len(train_records))
+    print(len(valid_records))
+
+    # training 데이터와 validation 데이터 불러오기
+    print("Setting up dataset reader")
+    image_options = {'resize': True, 'resize_size': IMAGE_SIZE}
+    if FLAGS.mode == 'train':
+        train_dataset_reader = dataset.BatchDatset(train_records, image_options)
+    validation_dataset_reader = dataset.BatchDatset(valid_records, image_options)
+
+
+    # 세션 열기
+    sess = tf.Session()
+
+    # 학습된 파라미터를 저장하기 위한 tf.train.Saver()선언
+    # tensorboard summary들을 저장하기 위한 tf.summary.FileWriter 선언
+    print("Setting up Saver...")
+    saver = tf.train.Saver()
+    summary_writer = tf.summary.FileWriter(FLAGS.logs_dir, sess.graph)
+
+    # 변수들을 초기화하고 저장된 ckpt 파일이 있으면 저장된 파라미터를 불러온다
+    sess.run(tf.global_variables_initializer())
+    ckpt = tf.train.get_checkpoint_state(FLAGS.logs_dir, sess.graph)
+    if ckpt and ckpt.model_checkpoint_path:
+        saver.restore(sess, ckpt.model_checkpoint_path)
+        print("Model restored...")
+
+    if FLAGS.mode == "train":
+        for itr in range(MAX_ITERATION):
+            # 학습 데이터를 불러오고 feed_dict에 데이터 지정
+            train_images, train_annotations = train_dataset_reader.next_batch(FLAGS.batch_size)
+            feed_dict = {image: train_images, annotation: train_annotations, keep_probability: 0.85}
+
+            # train_step을 실행해서 파라미터를 한 스텝 업데이트
+            sess.run(train_step, feed_dict=feed_dict)
+
+        # 10회 반복마다 training 데이터 손실 함수를 출력
+        if itr % 10 == 0:
+            train_loss, summary_str = sess.run([loss, summary_op], feed_dict=feed_dict)
+            print("반복(Step): %d, Training 손실함수(Train_loss): %g" % (itr, train_loss))
+            summary_writer.add_summary(summary_str, itr)
+
+        # 500회 반복마다 validation 데이터 손실 함수를 출력하고, 학습된 모델의 파라미터를 model.ckpt 파일로 저장
+        if itr % 500 == 0:
+            valid_image, valid_annotations = validation_dataset_reader.next_batch(FLAGS.batch_size)
+            valid_loss = sess.run(loss, feed_dict={image: valid_image, annotation: valid_annotations, keep_probability: 1.0})
+            print("%s ---> Validation 손실함수(Validation_loss): %g" % (datetime.datetime.now(), valid_loss))
+            saver.save(sess, FLAGS.logs_dir + "model.ckpt", itr)
+        elif FLAGS.mode == "visualize":
+            # validation data로 prediction 진행
+            valid_images, valid_annotations = validation_dataset_reader.get_random_batch(FLAGS.batch_size)
+            pred = sess.run(pred_annotation, feed_dict={image: valid_images, annotation: valid_annotations, keep_probability: 1.0})
+            valid_annotations = np.squeeze(valid_annotations, axis=3)
+            pred = np.squeeze(pred, axis=3)
+
+            # Input Data, Ground Truth, Prediction Result를 저장
+            for itr in range(FLAGS.batch_size):
+                utils.save_image(valid_images[itr].astype(np.uint8), FLAGS.logs_dir, name="inp_" + str(5+itr))
+                utils.save_image(valid_annotations[itr].astype(np.uint8), FLAGS.logs_dir, name="gt_" + str(5+itr))
+                utils.save_image(pred[itr].astype(np.uint8), FLAGS.logs_dir, name="pred_" + str(5+itr))
+                print("Saved image: %d" % itr)
+
+    sess.close()
+
+if __name__ == "__main__":
+    tf.app.run()
