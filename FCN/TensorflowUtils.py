@@ -11,7 +11,7 @@ import scipy.io
 # VGGNet 파라미터가 저장된 mat 파일을 다운로드 받고 불러옵니다
 def get_model_data(dir_path, model_url):
     maybe_download_and_extract(dir_path, model_url)
-    filename = model_url.split('/')[-1]
+    filename = model_url.split("/")[-1]
     filepath = os.path.join(dir_path, filename)
     if not os.path.exists(filepath):
         raise IOError("VGG Model not found!!!")

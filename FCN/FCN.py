@@ -5,7 +5,7 @@ import datetime
 
 import TensorflowUtils as utils
 import read_SceneParsingData as scene_parsing
-import BatchDatsetReader as dataset
+import BatchDatasetReader as dataset
 
 # 학습에 필요한 설정값들을 tf.flag.FLAGS로 지정
 FLAGS = tf.flags.FLAGS
@@ -72,7 +72,7 @@ def inference(image, keep_prob):
     # image: 인풋 이미지 0-255 사이의 값을 가지고 있어야 함
     # keep_prob: 드롭아웃에서 드롭하지 않을 노드의 비율
 
-    # 다운받은 VVGNet을 불러온다
+    # 다운받은 VGGNet을 불러온다
     print("setting up vgg initialized conv layers ...")
     model_data = utils.get_model_data(FLAGS.model_dir, MODEL_URL)
 
@@ -175,7 +175,6 @@ def main(argv=None):
     if FLAGS.mode == 'train':
         train_dataset_reader = dataset.BatchDatset(train_records, image_options)
     validation_dataset_reader = dataset.BatchDatset(valid_records, image_options)
-
 
     # 세션 열기
     sess = tf.Session()
