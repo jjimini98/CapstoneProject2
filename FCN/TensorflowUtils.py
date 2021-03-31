@@ -25,7 +25,7 @@ def maybe_download_and_extract(dir_path, url_name, is_tarfile = False, is_zipfil
         os.makedirs(dir_path)
     filename = url_name.split('/')[-1]
     filepath = os.path.join(dir_path, filename)
-    if not os.path.join(filepath):
+    if not os.path.exists(filepath):
         def _progress(count, block_size, total_size):
             sys.stdout.write('\r>>Downloding %s %.1f%%' % (filename, float(count * block_size) / float(total_size) * 100.0))
             sys.stdout.flush()
@@ -53,7 +53,7 @@ def get_variable(weights, name):
     return var
 
 # weight 선언
-def weigth_variable(shape, stddev=0.02, name=None):
+def weight_variable(shape, stddev=0.02, name=None):
     initial = tf.truncated_normal(shape, stddev=stddev)
     if name is None:
         return tf.Variable(initial)
