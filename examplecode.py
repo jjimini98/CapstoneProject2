@@ -1,9 +1,13 @@
 import cv2
 import numpy as np
 
-# 웹캠 신호 받기
+# 웹캠 신호 받기 : VideoCapture 메소드 안에 숫자는 어떤 카메라를 사용할건지에 대한 것.
+# 웹 캠이 1개면 0 , 2개면 첫번째가 0 , 두번째가 1이 됨.
 VideoSignal = cv2.VideoCapture(0)
+
 # YOLO 가중치 파일과 CFG 파일 로드
+# 미리 학습된 딥러닝 파일을 openCV DNN 모듈로 실행할 수 있다. forward와 추론만 가능하며  학습은 따로 지원하지 않는다.
+# opencv로 딥러닝을 실행하려면 cv2.dnn.readNet클래스 객체를 생성해야한다. 객체 생성에는 훈련된 가중치와 네트워크 구성을 저장하고 있는 파일임. 
 YOLO_net = cv2.dnn.readNet("yolov2-tiny.weights","yolov2-tiny.cfg")
 
 # YOLO NETWORK 재구성
