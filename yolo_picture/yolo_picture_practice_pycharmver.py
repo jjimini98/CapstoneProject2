@@ -2,12 +2,12 @@ import cv2
 import numpy as np
 
 # yolo 불러오기
-YOLO_net = cv2.dnn.readNet("./yolo_picture/yolov2-tiny.weights","./yolo_picture/yolov2-tiny.cfg")
+YOLO_net = cv2.dnn.readNet("yolov2-tiny.weights","yolov2-tiny.cfg")
 
 # 사진에서 구별할 class 를 미리 정의 
 # 우리 과제에 나온 class 사용 + 파일 내용은 sampletest.names 파일에서 확인 가능
 classes = []
-with open("./yolo_picture/sampletest.names", "r") as f:
+with open("sampletest.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 
 # YOLO_net에 기본으로 가지고 있던 layer의 이름들을 변수 layers_names에 저장 
@@ -24,7 +24,7 @@ colors = np.random.uniform(0,255, size = (len(classes),3))
 
 
 #이미지 로드
-img = cv2.imread("./yolo_picture/sample.png")
+img = cv2.imread("sample.png")
 # img = cv2.resize(img, None, fx = 0.4 , fy = 0.4) 이렇게 하면 이미지가 너무 작아져서 resize는 하지 않음
 height , width , channels = img.shape
 
