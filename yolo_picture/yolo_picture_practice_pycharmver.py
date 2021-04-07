@@ -1,3 +1,4 @@
+#pycharm으로 코드를 열경우 이 파일을 사용하기 
 import cv2
 import numpy as np
 
