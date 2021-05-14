@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 def yolo(frame, size, score_threshold, nms_threshold):
-   net = cv2.dnn.readNet(f"yolov3_{size}.weights", "./yolo_picture/yolov2-tiny.cfg")
+   net = cv2.dnn.readNet("yolov2-tiny.weights","yolov2-tiny.cfg")
    layer_names = net.getLayerNames()
    output_layers = [layer_names[i[0] -1] for i in net.getUnconnectedOutLayers()]
 
@@ -82,7 +82,7 @@ def yolo(frame, size, score_threshold, nms_threshold):
 classes = ["Bicyclist","Pedestrian", "Car",  "Fence" ,  "SignSymbol" ,"Tree",  "Pavement",  "Road", "Pole" ,  "Building", "Sky"] 
 
 # 이미지 경로
-office = "./yolo_picture/sample.png"
+office = "sample.png"
 # 이미지 읽어오기
 frame = cv2.imread(office)
 
