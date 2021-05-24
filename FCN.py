@@ -129,7 +129,7 @@ def inference(image, keep_prob):
     deconv_shape2 = image_net["pool3"].get_shape()
     W_t2 = utils.weight_variable([4, 4, deconv_shape2[3].value, deconv_shape1[3].value], name="W_t2")
     b_t2 = utils.bias_variable([deconv_shape2[3].value], name="b_t2")
-    # fuse_1 이미지를 2배 확대합니다.
+    # fuse_1 이미지를 2배 확대 합니다.
     conv_t2 = utils.conv2d_transpose_strided(fuse_1, W_t2, b_t2, output_shape=tf.shape(image_net["pool3"]))
     # 2x fuse_1과 pool3를 더해 fuse_2 이미지를 만듭니다.
     fuse_2 = tf.add(conv_t2, image_net["pool3"], name="fuse_2")
@@ -148,7 +148,7 @@ def inference(image, keep_prob):
 
 
 def main(argv=None):
-  pdb.set_trace()
+  #pdb.set_trace()
   # 인풋 이미지와 타겟 이미지, 드롭아웃 확률을 받을 플레이스홀더를 정의합니다.
   keep_probability = tf.placeholder(tf.float32, name="keep_probabilty")
   image = tf.placeholder(tf.float32, shape=[None, IMAGE_SIZE, IMAGE_SIZE, 3], name="input_image")
@@ -172,6 +172,7 @@ def main(argv=None):
   print("Setting up summary op...")
   summary_op = tf.summary.merge_all()
 
+  #pdb.set_trace()
   # training 데이터와 validation 데이터의 개수를 불러옵니다.
   print("Setting up image reader...")
   train_records, valid_records = scene_parsing.read_dataset(FLAGS.data_dir)
