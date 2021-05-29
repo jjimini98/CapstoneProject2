@@ -141,7 +141,7 @@ for i in a_validation:
 
 
 
-## 같은 이미지가 잘 들어간건지 확인...
+'''## 같은 이미지가 잘 들어간건지 확인...
 path = 'C:/Users/user_/PycharmProjects/CapstoneProject2_test/Data_zoo/MIT_SceneParsing/dataset/images/validation'
 os.chdir(path)  # 해당 폴더로 이동
 image_val_files = os.listdir(path)   # 해당 폴더에 있는 파일 이름을 리스트 형태로 받음
@@ -160,4 +160,19 @@ for i in image_val_files:
     if i in names:
         sum += 1
 
-print(sum)  # sum이 100이 나왔으므로 데이터가 정상적으로 들어간것
+print(sum)  # sum이 100이 나왔으므로 데이터가 정상적으로 들어간것'''
+
+
+
+#### annotations을 흑백 이미지로 바꿔봅시다~~
+import cv2
+f_name = ['training', 'validation']
+for f in f_name:
+    path = 'C:/Users/user_/PycharmProjects/CapstoneProject2_test/Data_zoo/MIT_SceneParsing/dataset/annotations/{}'.format(f)
+    os.chdir(path)  # 해당 폴더로 이동
+    files = os.listdir(path)  # 해당 폴더에 있는 파일 이름을 리스트 형태로 받음
+    for i in files:
+        path_ = 'C:/Users/user_/PycharmProjects/CapstoneProject2_test/Data_zoo/MIT_SceneParsing/dataset/annotations/{}/{}'.format(f, i)
+        image = cv2.imread(path_, cv2.IMREAD_GRAYSCALE)
+        cv2.imwrite(path_, image)
+
