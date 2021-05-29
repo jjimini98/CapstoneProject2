@@ -38,6 +38,13 @@ class BatchDatset:
             [np.expand_dims(self._transform(filename['annotation']), axis=3) for filename in self.files])
         print(self.images.shape)
         print(self.annotations.shape)
+        #print(len(self.images))
+        #np.squeeze(배열, 축)을 통해 지정된 축의 차원을 축소할 수 있습니다.
+        print("self.annotations reshape :", np.reshape(self.annotations, (len(self.images), 224, 224, 3)).shape)
+        self.annotations = np.reshape(self.annotations, (len(self.images), 224, 224, 3))
+
+        #print("self.images :", self.images)
+        #print("self.annotations :", self.annotations)
 
     # 이미지에 변형을 가합니다.
     def _transform(self, filename):
