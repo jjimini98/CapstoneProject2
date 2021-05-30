@@ -34,14 +34,16 @@ class BatchDatset:
         self.__channels = True
         self.images = np.array([self._transform(filename['image']) for filename in self.files])
         self.__channels = False
-        self.annotations = np.array(
-            [np.expand_dims(self._transform(filename['annotation']), axis=3) for filename in self.files])
+        #self.annotations = np.array(
+        #    [np.expand_dims(self._transform(filename['annotation']), axis=3) for filename in self.files])
+        self.annotations = np.array([self._transform(filename['annotation']) for filename in self.files])
+
         print(self.images.shape)
         print(self.annotations.shape)
         #print(len(self.images))
-        #np.squeeze(배열, 축)을 통해 지정된 축의 차원을 축소할 수 있습니다.
-        print("self.annotations reshape :", np.reshape(self.annotations, (len(self.images), 224, 224, 3)).shape)
-        self.annotations = np.reshape(self.annotations, (len(self.images), 224, 224, 3))
+        # np.squeeze(배열, 축)을 통해 지정된 축의 차원을 축소할 수 있습니다.
+        print("self.annotations reshape :", np.reshape(self.annotations, (len(self.images), 224, 224, 1)).shape)
+        self.annotations = np.reshape(self.annotations, (len(self.images), 224, 224, 1))
 
         #print("self.images :", self.images)
         #print("self.annotations :", self.annotations)
@@ -75,6 +77,9 @@ class BatchDatset:
         start = self.batch_offset
         self.batch_offset += batch_size
         # 한 epoch의 배치가 끝난 경우 batch index를 처음으로 다시 설정합니다.
+        print('----------------------------------------------------------------')
+        #print(self.images)
+        print(self.images.shape[0])
         if self.batch_offset > self.images.shape[0]:
             # 한 epoch이 끝났습니다.
             self.epochs_completed += 1
