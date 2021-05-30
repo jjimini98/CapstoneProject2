@@ -26,7 +26,7 @@ MODEL_URL = 'http://www.vlfeat.org/matconvnet/models/beta16/imagenet-vgg-verydee
 
 # 학습에 필요한 설정값들을 지정합니다.
 MAX_ITERATION = int(100000 + 1)
-NUM_OF_CLASSESS = 151       # 레이블 개수
+NUM_OF_CLASSESS = 11       # 레이블 개수
 IMAGE_SIZE = 224
 
 # VGGNet 그래프 구조를 구축합니다.
@@ -56,9 +56,12 @@ def vgg_net(weights, image):
       # matconvnet: weights are [width, height, in_channels, out_channels]
       # tensorflow: weights are [height, width, in_channels, out_channels]
       # MATLAB 파일의 행렬 순서를 tensorflow 행렬의 순서로 변환합니다.
+      #print('바꾸기 전 :' , kernels.shape)
       kernels = utils.get_variable(np.transpose(kernels, (1, 0, 2, 3)), name=name + "_w")
+      #print('바꾼 후 :', kernels.shape)
       bias = utils.get_variable(bias.reshape(-1), name=name + "_b")
       current = utils.conv2d_basic(current, kernels, bias)
+
     # Activation 레이어일 경우
     elif kind == 'relu':
       current = tf.nn.relu(current, name=name)
@@ -91,8 +94,13 @@ def inference(image, keep_prob):
 
   with tf.variable_scope("inference"):
     image_net = vgg_net(weights, processed_image)
+
+    test = image_net["conv1_1"]
+    print(test.shape)   #(?, 224, 224, 64)
+
     # VGGNet의 conv5(conv5_3) 레이어를 불러옵니다.
     conv_final_layer = image_net["conv5_3"]
+    print(conv_final_layer.shape)  # (?, 14, 14, 512)
 
     # pool5를 정의합니다.
     pool5 = utils.max_pool_2x2(conv_final_layer)
@@ -172,7 +180,7 @@ def main(argv=None):
   print("Setting up summary op...")
   summary_op = tf.summary.merge_all()
 
-  #pdb.set_trace()
+  #pdb.set_trace()    # 디버깅
   # training 데이터와 validation 데이터의 개수를 불러옵니다.
   print("Setting up image reader...")
   train_records, valid_records = scene_parsing.read_dataset(FLAGS.data_dir)
@@ -184,6 +192,7 @@ def main(argv=None):
   image_options = {'resize': True, 'resize_size': IMAGE_SIZE}
   if FLAGS.mode == 'train':
     train_dataset_reader = dataset.BatchDatset(train_records, image_options)
+    #print('-----------------------------------------------------------', train_dataset_reader)
   validation_dataset_reader = dataset.BatchDatset(valid_records, image_options)
 
   # 세션을 엽니다.
@@ -198,15 +207,20 @@ def main(argv=None):
   # 변수들을 초기화하고 저장된 ckpt 파일이 있으면 저장된 파라미터를 불러옵니다.
   sess.run(tf.global_variables_initializer())
   ckpt = tf.train.get_checkpoint_state(FLAGS.logs_dir)
+  print(ckpt)
+  print(type(ckpt))
   if ckpt and ckpt.model_checkpoint_path:
     saver.restore(sess, ckpt.model_checkpoint_path)
-    print("Model restored...")
+    print("Model restored...(모델 복원됨)")
 
+  pdb.set_trace()  # 디버깅
   if FLAGS.mode == "train":
     for itr in range(MAX_ITERATION):
       # 학습 데이터를 불러오고 feed_dict에 데이터를 지정합니다
       train_images, train_annotations = train_dataset_reader.next_batch(FLAGS.batch_size)
+      #print("train_annotations.shape :", train_annotations.shape)
       feed_dict = {image: train_images, annotation: train_annotations, keep_probability: 0.85}
+      #print(feed_dict)
 
       # train_step을 실행해서 파라미터를 한 스텝 업데이트합니다.
       sess.run(train_step, feed_dict=feed_dict)
