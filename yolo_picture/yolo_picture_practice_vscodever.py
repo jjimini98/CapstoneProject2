@@ -12,6 +12,7 @@ classes = []
 with open("./yolo_picture/sampletest.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
 
+
 # YOLO_net에 기본으로 가지고 있던 layer의 이름들을 변수 layers_names에 저장 
 layers_names = YOLO_net.getLayerNames()
 # layers_names 출력  결과 : ['conv_0', 'bn_0', 'relu_1', 'pool_1', 'conv_2', 'bn_2', 'relu_3', 'pool_3', 'conv_4', 'bn_4', 'relu_5', 'pool_5', 'conv_6', 'bn_6', 'relu_7', 'pool_7', 'conv_8', 'bn_8', 'relu_9', 'pool_9', 'conv_10', 'bn_10', 'relu_11', 'pool_11', 'conv_12', 'bn_12', 'relu_13', 'conv_13', 'bn_13', 'relu_14', 'conv_14', 'permute_15', 'detection_out']
@@ -27,7 +28,7 @@ colors = np.random.uniform(0,255, size = (len(classes),3))
 
 #이미지 로드
 img = cv2.imread("./yolo_picture/sample.png")
-# img = cv2.resize(img, None, fx = 0.4 , fy = 0.4) 이렇게 하면 이미지가 너무 작아져서 resize는 하지 않음
+# img = cv2.resize(img, None, fx = 0.4, fy = 0.4) #이렇게 하면 이미지가 너무 작아져서 resize는 하지 않음
 height , width , channels = img.shape
 
 #객체인식 시작
@@ -43,8 +44,8 @@ outs = YOLO_net.forward(output_layers)
 class_ids = [] #[9]
 confidences = [] #[0.7555906176567078]
 boxes = [] #[[252, 271, 36, 42]]
+
 for out in outs:  # 배열의 한 행씩 가지고 나온다. 
-    
     for detection in out:
 
         scores = detection[5:]
