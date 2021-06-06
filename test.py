@@ -165,6 +165,7 @@ print(sum)  # sum이 100이 나왔으므로 데이터가 정상적으로 들어�
 
 
 #### annotations을 흑백 이미지로 바꿔봅시다~~
+'''
 import cv2
 f_name = ['training', 'validation']
 for f in f_name:
@@ -175,4 +176,45 @@ for f in f_name:
         path_ = 'C:/Users/user_/PycharmProjects/CapstoneProject2_test/Data_zoo/MIT_SceneParsing/dataset/annotations/{}/{}'.format(f, i)
         image = cv2.imread(path_, cv2.IMREAD_GRAYSCALE)
         cv2.imwrite(path_, image)
+'''
 
+
+
+
+#### ddd.txt에는 sess.run(train_step, feed_dict=feed_dict) 코드를 돌리면
+#### 에러메세지와 함께 나오는 라벨 values 값들을 복붙해서 저장해놓은 텍스트파일입니다. 개수나 세봅시다.
+path = 'C:/Users/user_/Desktop/capstone2/ddddd.txt'
+r = open(path, mode='rt')
+label_values = r.read()
+print(type(label_values))
+#print(label_values.split('\n'))
+label_values = label_values.replace('\n', '')
+label_values_list = label_values.split()
+print(len(label_values_list), '\n')
+
+labels = list(set(label_values_list))
+#print(label)
+label = []
+er = []
+for i in labels:
+    if int(i) < 184:
+        #print(i)
+        label.append(i)
+    else:
+        er.append(i)
+
+print(list(set(label)))
+
+'''import re
+for i in range(len(label_values_list)):
+    if int(label_values_list[i]) > 184:
+        for j in list(set(label)):
+            if j in label_values_list[i]:
+                #print(label_values_list[i], ':')
+                for m in re.finditer(j, label_values_list[i]):
+                    st = m.start()
+                    #print(label_values_list[i][st:len(j)+st])
+                break
+## 음... 이건 못쓰겠다!
+
+'''
