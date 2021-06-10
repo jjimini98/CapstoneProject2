@@ -22,7 +22,7 @@ output_layers = [layers_names[i[0]-1] for i in YOLO_net.getUnconnectedOutLayers(
 # 난수 생성(난수의 범위 : 0~255) : 라벨링된 결과를 출력할 때 쓸 색깔 변수
 colors = np.random.uniform(0,255, size = (len(classes),3))
 
-#이미지 로드
+#이미지 읽어들이기
 img = cv2.imread("test.png")
 # img = cv2.resize(img, None, fx = 0.4 , fy = 0.4) 이렇게 하면 이미지가 너무 작아져서 resize는 하지 않음 이미지 사이즈를 축소하는 코드
 # 이미지의 크기를 각각 변수에 저장
