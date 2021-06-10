@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 def yolo(frame, size, score_threshold, nms_threshold):
-   net = cv2.dnn.readNet("yolov2-tiny.weights","yolov2-tiny.cfg")
+   net = cv2.dnn.readNet("yolov3.weights","yolovv3.cfg")
    layer_names = net.getLayerNames()
    output_layers = [layer_names[i[0] -1] for i in net.getUnconnectedOutLayers()]
 
